@@ -14,12 +14,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-import model.dao.DaoDepartment;
 import model.entities.Department;
+import model.services.DepartmentService;
 
 public class DepartmentListController implements Initializable{
 
-	private DaoDepartment daoDepartment;
+	private DepartmentService departmentService;
 	
 	@FXML
 	private TableView<Department> tableViewDepartment;
@@ -42,8 +42,8 @@ public class DepartmentListController implements Initializable{
 		initializeNodes();
 	}
 	
-	public void setDaoDepartment(DaoDepartment dd) {
-		this.daoDepartment = dd;
+	public void setDepartmentService(DepartmentService ds) {
+		this.departmentService = ds;
 	}
 	
 	private void initializeNodes() {
@@ -54,10 +54,10 @@ public class DepartmentListController implements Initializable{
 	}
 
 	public void updateTableView() {
-		if(daoDepartment == null) {
+		if(departmentService == null) {
 			throw new IllegalStateException("DaoDepartment is null");
 		}
-		List<Department> list = daoDepartment.findAll();
+		List<Department> list = departmentService.findAll();
 		obsList = FXCollections.observableArrayList(list);
 		tableViewDepartment.setItems(obsList);
 	}
