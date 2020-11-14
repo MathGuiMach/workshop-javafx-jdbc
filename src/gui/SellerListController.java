@@ -31,12 +31,13 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Seller;
+import model.services.DepartmentService;
 import model.services.SellerService;
 
 public class SellerListController implements Initializable, DataChangeListener {
 
-	private SellerService departmentService;
-
+	private SellerService sellerService;
+	
 	@FXML
 	private TableView<Seller> tableViewSeller;
 	@FXML
@@ -69,8 +70,8 @@ public class SellerListController implements Initializable, DataChangeListener {
 		initializeNodes();
 	}
 
-	public void setSellerService(SellerService ds) {
-		this.departmentService = ds;
+	public void setSellerService(SellerService ss) {
+		this.sellerService = ss;
 	}
 
 	private void initializeNodes() {
@@ -126,11 +127,11 @@ public class SellerListController implements Initializable, DataChangeListener {
 	private void removeEntity(Seller obj) {
 		Optional<ButtonType> result = Alerts.showConfirmation("Confirmation","Are you sure you want to delete?");
 		if(result.get() == ButtonType.OK) {
-			if(departmentService == null) {
+			if(sellerService == null) {
 				throw new IllegalStateException("Service is null");
 			}
 			try {
-				departmentService.delete(obj);
+				sellerService.delete(obj);
 				updateTableView();
 			}
 			catch(DbIntegrityException e) {
@@ -140,10 +141,10 @@ public class SellerListController implements Initializable, DataChangeListener {
 	}
 
 	public void updateTableView() {
-		if (departmentService == null) {
+		if (sellerService == null) {
 			throw new IllegalStateException("DaoSeller is null");
 		}
-		List<Seller> list = departmentService.findAll();
+		List<Seller> list = sellerService.findAll();
 		obsList = FXCollections.observableArrayList(list);
 		tableViewSeller.setItems(obsList);
 		initEditButtons();
@@ -157,7 +158,8 @@ public class SellerListController implements Initializable, DataChangeListener {
 
 			SellerFormController controller = loader.getController();
 			controller.setEntity(d);
-			controller.setSellerService(departmentService);
+			controller.setServices(sellerService,new DepartmentService());
+			controller.loadAssociatedObjects(); 
 			controller.subscribeDataChangeListener(this);
 			controller.updateFormData();
 
@@ -170,6 +172,7 @@ public class SellerListController implements Initializable, DataChangeListener {
 			dialogStage.showAndWait();
 
 		} catch (IOException e) {
+			e.printStackTrace();
 			Alerts.showAlert("IO Exception", "Error loading View", e.getMessage(), AlertType.ERROR);
 		}
 	}
